@@ -2,27 +2,64 @@
 
 @section('content')
 <style>
-    .table-smaller th, .table-smaller td {
+    .table-smaller th {
         font-size: 12px !important;
         vertical-align: middle !important;
         text-align: center !important;
     }
-    body { margin: 0; padding: 0; }
+
+    .table-smaller td {
+        font-size: 12px !important;
+        vertical-align: middle !important;
+        text-align: left !important;
+    }
+
+    .col-karpeg {
+        width: 60px;
+        max-width: 60px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pagination {
+        font-size: 14px;
+    }
+
+    .pagination .page-link {
+        padding: 4px 8px;
+        font-size: 13px;
+    }
+
+    .pagination .page-item i,
+    .pagination .page-item svg {
+        font-size: 14px;
+    }
+
+    .table-smaller i {
+        font-size: 12px !important;
+        vertical-align: middle;
+    }
+
     .ttd-kepala {
         margin-top: 48px;
         width: 100%;
     }
+
     .ttd-kepala td {
         border: none !important;
         text-align: right;
         padding-right: 80px;
         padding-top: 32px;
     }
+
     .nama-kepala {
         font-weight: bold;
         text-decoration: underline;
         margin-bottom: 0;
     }
+
     .nip {
         margin-top: 0;
     }
@@ -30,10 +67,48 @@
 
 <div class="container-fluid p-0">
     <h1>DUK Dinkes</h1>
-    <a href="{{ route('pegawais.create') }}" class="btn btn-primary mb-3">Tambah Pegawai</a>
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+
+    {{-- Filter dan Pencarian --}}
+    <form method="GET" action="{{ route('pegawais.index') }}" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <input type="text" name="q" class="form-control" placeholder="Cari nama, NIP, jabatan..." value="{{ request('q') }}">
+        </div>
+        @php
+            $golonganList = ['IIa','IIb','IIc','IId','IIIa','IIIb','IIIc','IIId','IVa','IVb','IVc','IVd','IVe'];
+        @endphp
+        <div class="col-md-2">
+            <select name="golongan" class="form-select">
+                <option value="">Semua Golongan</option>
+                @foreach($golonganList as $gol)
+                    <option value="{{ $gol }}" {{ request('golongan') == $gol ? 'selected' : '' }}>{{ $gol }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="pendidikan" class="form-select">
+                <option value="">Semua Pendidikan</option>
+                @foreach(['SD','SLTP','SLTA','D1','D2','D3','S1','S2','S3'] as $pend)
+                    <option value="{{ $pend }}" {{ request('pendidikan') == $pend ? 'selected' : '' }}>{{ $pend }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="tugas" class="form-select">
+                <option value="">Semua Tempat Tugas</option>
+                @foreach($pegawais->pluck('tempat_tugas')->unique() as $tugas)
+                    <option value="{{ $tugas }}" {{ request('tugas') == $tugas ? 'selected' : '' }}>{{ $tugas }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-success w-100">Filter</button>
+        </div>
+        <div class="col-md-1">
+            <a href="{{ route('pegawais.index') }}" class="btn btn-secondary w-100">Reset</a>
+        </div>
+    </form>
+
+    {{-- Tabel Pegawai --}}
     <div class="table-responsive">
         <table class="table table-bordered table-smaller w-100">
             <thead>
@@ -58,7 +133,7 @@
             <tbody>
                 @foreach($pegawais as $no => $pegawai)
                 <tr>
-                    <td>{{ $no + 1 }}</td>
+                    <td>{{ ($pegawais->currentPage() - 1) * $pegawais->perPage() + $no + 1 }}</td>
                     <td>{{ $pegawai->nama }}<br>{{ $pegawai->tempat_lahir }}, {{ \Carbon\Carbon::parse($pegawai->tanggal_lahir)->format('d-m-Y') }}</td>
                     <td>{{ $pegawai->nip }}</td>
                     <td>{{ $pegawai->pangkat }} / {{ $pegawai->golongan }}</td>
@@ -89,24 +164,28 @@
             </tbody>
         </table>
     </div>
-    <!-- Bagian tanda tangan -->
-    <table class="ttd-kepala" style="width:100%; margin-top:0px;">
+
+    {{-- Pagination --}}
+    <div class="mt-2 text-center">
+        <small>Menampilkan {{ $pegawais->firstItem() }} - {{ $pegawais->lastItem() }} dari total {{ $pegawais->total() }} pegawai</small>
+        <div class="mt-2">
+            {{ $pegawais->links() }}
+        </div>
+    </div>
+
+    {{-- Tanda Tangan --}}
+    @if($pegawais->currentPage() == $pegawais->lastPage())
+    <table class="ttd-kepala">
         <tr>
-            <td style="border:none; text-align:right; padding-right:80px; padding-top:32px;">
-                <div>Bangkinang, {{ date('d F Y') }}<br>
-                Kepala Dinas Kesehatan</div>
-                <br><br><br>
-                <div class="nama-kepala" style="font-weight:bold; text-decoration:underline;">
-                    dr. ASMARA FITRAH ABADI
-                </div>
-                <div class="pangkat-kepala">
-                    Pembina Utama Muda (IVc)
-                </div>
-                <div class="nip">
-                    NIP. 19720911 200312 1 007
-                </div>
+            <td>
+                Bangkinang, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
+                Kepala Dinas Kesehatan<br><br><br><br>
+                <div class="nama-kepala">dr. ASMARA FITRAH ABADI</div>
+                <div>Pembina Utama Muda (IVc)</div>
+                <div class="nip">NIP. 19720911 200312 1 007</div>
             </td>
         </tr>
     </table>
+    @endif
 </div>
 @endsection

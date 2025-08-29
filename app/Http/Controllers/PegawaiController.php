@@ -11,31 +11,32 @@ use PDF;
 
 class PegawaiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pendidikanOrder = "FIELD(tingkat_pendidikan, 'S3','S2','S1','D3','D2','D1','SLTA','SLTP','SD')";
-        $pangkatOrder = "FIELD(pangkat, 
-            'Pembina Utama',
-            'Pembina Madya',
-            'Pembina Tingkat I',
-            'Pembina',
-            'Penata Tingkat I',
-            'Penata',
-            'Penata Muda Tingkat I',
-            'Penata Muda',
-            'Pengatur Tingkat I',
-            'Pengatur',
-            'Pengatur Muda Tingkat I',
-            'Pengatur Muda',
-            'PPPK'
-        )";
+        $query = Pegawai::sorted();
 
-        $pegawais = Pegawai::orderByRaw($pangkatOrder)
-            ->orderByDesc('jabatan')
-            ->orderByRaw('(masa_kerja_tahun * 12 + masa_kerja_bulan) DESC')
-            ->orderByRaw($pendidikanOrder)
-            ->orderByDesc('usia')
-            ->get();
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nama', 'like', "%$q%")
+                    ->orWhere('nip', 'like', "%$q%")
+                    ->orWhere('jabatan', 'like', "%$q%");
+            });
+        }
+
+        if ($request->filled('golongan')) {
+            $query->where('golongan', $request->golongan);
+        }
+
+        if ($request->filled('pendidikan')) {
+            $query->where('tingkat_pendidikan', $request->pendidikan);
+        }
+
+        if ($request->filled('tugas')) {
+            $query->where('tempat_tugas', $request->tugas);
+        }
+
+        $pegawais = $query->paginate(10)->withQueryString();
 
         return view('pegawai.index', compact('pegawais'));
     }
@@ -59,7 +60,7 @@ class PegawaiController extends Controller
             'masa_kerja_bulan' => 'required|integer|min:0|max:11',
             'status_kepegawaian' => 'required|string',
             'nama_sekolah' => 'required|string|max:255',
-            'tahun_lulus' => 'required|integer|min:1900|max:' . date('Y'),
+            'tahun_lulus' => 'required|integer|min:1900|max:' . now()->year,
             'tingkat_pendidikan' => 'required|string',
             'jenis_kelamin' => 'required|string',
             'usia' => 'required|integer|min:0',
@@ -95,7 +96,7 @@ class PegawaiController extends Controller
             'masa_kerja_bulan' => 'required|integer|min:0|max:11',
             'status_kepegawaian' => 'required|string',
             'nama_sekolah' => 'required|string|max:255',
-            'tahun_lulus' => 'required|integer|min:1900|max:' . date('Y'),
+            'tahun_lulus' => 'required|integer|min:1900|max:' . now()->year,
             'tingkat_pendidikan' => 'required|string',
             'jenis_kelamin' => 'required|string',
             'usia' => 'required|integer|min:0',
@@ -123,14 +124,17 @@ class PegawaiController extends Controller
 
     public function exportPdf()
     {
-        $pegawais = Pegawai::all();
-        $pdf = PDF::loadView('pegawai.pdf', compact('pegawais'));
+        $pegawais = Pegawai::sorted()->get();
+
+        $pdf = PDF::loadView('pegawai.pdf', compact('pegawais'))
+                  ->setPaper('A4', 'landscape');
+
         return $pdf->download('pegawais.pdf');
     }
 
     public function show($id)
     {
-        $pegawai = \App\Models\Pegawai::findOrFail($id);
+        $pegawai = Pegawai::findOrFail($id);
         return view('pegawai.show', compact('pegawai'));
     }
 }

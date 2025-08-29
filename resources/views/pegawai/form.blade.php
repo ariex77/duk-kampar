@@ -1,25 +1,27 @@
-<div class="mb-2">
+<div class="row g-3">
+    <div class="col-md-6">
     <label>Nama</label>
     <input type="text" name="nama" class="form-control" value="{{ old('nama', $pegawai->nama ?? '') }}" required>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Tempat Lahir</label>
     <input type="text" name="tempat_lahir" class="form-control" value="{{ old('tempat_lahir', $pegawai->tempat_lahir ?? '') }}" required>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Tanggal Lahir</label>
     <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir', $pegawai->tanggal_lahir ?? '') }}" required>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>NIP</label>
     <input type="text" name="nip" class="form-control" value="{{ old('nip', $pegawai->nip ?? '') }}" required>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Pangkat</label>
     <select name="pangkat" class="form-control" required>
         @foreach([
             'Pembina Utama',
-            'Pembina Madya',
+            'Pembina Utama Madya',
+            'Pembina Utama Muda',
             'Pembina Tingkat I',
             'Pembina',
             'Penata Tingkat I',
@@ -36,7 +38,7 @@
         @endforeach
     </select>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Golongan</label>
     <select name="golongan" class="form-control" required>
         @foreach([
@@ -48,19 +50,19 @@
         @endforeach
     </select>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Jabatan</label>
     <input type="text" name="jabatan" class="form-control" value="{{ old('jabatan', $pegawai->jabatan ?? '') }}" required>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Masa Kerja (Tahun)</label>
     <input type="number" name="masa_kerja_tahun" class="form-control" value="{{ old('masa_kerja_tahun', $pegawai->masa_kerja_tahun ?? '') }}" required>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Masa Kerja (Bulan)</label>
     <input type="number" name="masa_kerja_bulan" class="form-control" value="{{ old('masa_kerja_bulan', $pegawai->masa_kerja_bulan ?? '') }}" required>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Status Kepegawaian</label>
     <select name="status_kepegawaian" class="form-control" required>
         @foreach(['PNS','PPPK'] as $status)
@@ -68,15 +70,15 @@
         @endforeach
     </select>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Nama Sekolah</label>
     <input type="text" name="nama_sekolah" class="form-control" value="{{ old('nama_sekolah', $pegawai->nama_sekolah ?? '') }}" required>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Tahun Lulus</label>
     <input type="number" name="tahun_lulus" class="form-control" value="{{ old('tahun_lulus', $pegawai->tahun_lulus ?? '') }}" required>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Tingkat Pendidikan</label>
     <select name="tingkat_pendidikan" class="form-control" required>
         @foreach(['SD','SLTP','SLTA','D1','D2','D3','D4','S1','S2','S3'] as $tp)
@@ -84,7 +86,7 @@
         @endforeach
     </select>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Jenis Kelamin</label>
     <select name="jenis_kelamin" class="form-control" required>
         @foreach(['Laki-laki','Perempuan'] as $jk)
@@ -92,15 +94,60 @@
         @endforeach
     </select>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Usia</label>
     <input type="number" name="usia" id="usia" class="form-control" value="{{ old('usia', $pegawai->usia ?? '') }}" readonly>
 </div>
-<div class="mb-2">
+<div class="col-md-3">
     <label>Tempat Tugas</label>
-    <input type="text" name="tempat_tugas" class="form-control" value="{{ old('tempat_tugas', $pegawai->tempat_tugas ?? '') }}" required>
+    <select name="tempat_tugas" class="form-select" required>
+        <option value="">-- Pilih Tempat Tugas --</option>
+        @foreach([
+            'Dinas Kesehatan',
+            'UPTD Labkesmas',
+            'UPTD IFK',
+            'UPTD Puskesmas Air Tiris',
+            'UPTD Puskesmas Bangkinang',
+            'UPTD Puskesmas Batu Bersurat',
+            'UPTD Puskesmas Batu Sasak',
+            'UPTD Puskesmas Gema',
+            'UPTD Puskesmas Gunung Bungsu',
+            'UPTD Puskesmas Gunung Sahilan',
+            'UPTD Puskesmas Gunung Sari',
+            'UPTD Puskesmas Kampa',
+            'UPTD Puskesmas Kota Garo',
+            'UPTD Puskesmas Kubang Jaya',
+            'UPTD Puskesmas Kuntu',
+            'UPTD Puskesmas Kuok',
+            'UPTD Puskesmas Laboy Jaya',
+            'UPTD Puskesmas Lipat Kain',
+            'UPTD Puskesmas Muara Uwai',
+            'UPTD Puskesmas Pandau Jaya',
+            'UPTD Puskesmas Pangkalan Baru',
+            'UPTD Puskesmas Pantai Cermin',
+            'UPTD Puskesmas Pantai Raja',
+            'UPTD Puskesmas Petapahan',
+            'UPTD Puskesmas Pulau Gadang',
+            'UPTD Puskesmas Rumbio',
+            'UPTD Puskesmas Salo',
+            'UPTD Puskesmas Sawah',
+            'UPTD Puskesmas Sibiruang',
+            'UPTD Puskesmas Simalinyang',
+            'UPTD Puskesmas Sinamanenek',
+            'UPTD Puskesmas Suka Ramai',
+            'UPTD Puskesmas Sungai Pagar',
+            'UPTD Puskesmas Tambang',
+            'UPTD Puskesmas Tanah Tinggi',
+            'UPTD Puskesmas Tapung',
+        ] as $unit)
+            <option value="{{ $unit }}" {{ old('tempat_tugas', $pegawai->tempat_tugas ?? '') == $unit ? 'selected' : '' }}>
+                {{ $unit }}
+            </option>
+        @endforeach
+    </select>
 </div>
-<div class="mb-2">
+
+<div class="col-md-3">
     <label>Nomor Seri Karpeg</label>
     <input type="text" name="nomor_seri_karpeg" class="form-control" value="{{ old('nomor_seri_karpeg', $pegawai->nomor_seri_karpeg ?? '') }}" required>
 </div>
